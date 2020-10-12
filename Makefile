@@ -1,11 +1,11 @@
 .PHONY: build
 build:
-	go build -o go-todo .
+	@go build -o go-todo .
 
 .PHONY: dev
 dev:
-	go run ./server.go
+	@go run ./server.go
 
 .PHONY: test
 test:
-	go test
+	@go test ./...
