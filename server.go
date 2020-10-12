@@ -13,9 +13,12 @@ import (
 )
 
 func main() {
-	_ = godotenv.Load()
-
 	server := echo.New()
+
+	if err := godotenv.Load(); err != nil {
+		server.Logger.Fatal(err)
+	}
+
 	db, err := setUpDB()
 	if err != nil {
 		server.Logger.Fatal(err)
