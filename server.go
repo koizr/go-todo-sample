@@ -20,13 +20,44 @@ func main() {
 	if err != nil {
 		server.Logger.Fatal(err)
 	}
-	handleRequest(server, db)
+	handleRequest(server, &Dependencies{
+		db: db,
+	})
 	server.Logger.Fatal(server.Start(fmt.Sprintf(":%s", getPort())))
 }
 
-func handleRequest(e *echo.Echo, db *gorm.DB) {
+type ServerError struct {
+	Message string `json:"message"`
+}
+
+type ServerErrorResponseBody struct {
+	Error *ServerError `json:"error"`
+}
+
+func handleRequest(e *echo.Echo, dependencies *Dependencies) {
 	e.GET("/hello", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!")
+	})
+	e.POST("/user", func(c echo.Context) error {
+		provisionalUser := &persistent.ProvisionalUser{}
+		if err := c.Bind(provisionalUser); err != nil {
+			return c.JSON(http.StatusBadRequest, &struct{}{})
+		}
+
+		user, err := persistent.NewUser(provisionalUser)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, &ServerErrorResponseBody{
+				Error: &ServerError{Message: "failed to add user."},
+			})
+		}
+
+		if dependencies.DB().Create(user).Error != nil {
+			return c.JSON(http.StatusInternalServerError, &ServerErrorResponseBody{
+				Error: &ServerError{Message: "failed to add user."},
+			})
+		}
+
+		return c.JSON(http.StatusCreated, &struct{}{})
 	})
 }
 
@@ -53,4 +84,12 @@ func setUpDB() (db *gorm.DB, err error) {
 	}
 
 	return
+}
+
+type Dependencies struct {
+	db *gorm.DB
+}
+
+func (d *Dependencies) DB() *gorm.DB {
+	return d.db
 }
