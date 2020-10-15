@@ -1,12 +1,17 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"github.com/koizr/go-todo-sample/auth/app"
+	"github.com/koizr/go-todo-sample/common"
 	"github.com/koizr/go-todo-sample/infra/persistent"
+	"github.com/labstack/echo/v4/middleware"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
@@ -22,19 +27,18 @@ func main() {
 	db, err := setUpDB()
 	if err != nil {
 		server.Logger.Fatal(err)
+		return
+	}
+	secret, err := getSecret()
+	if err != nil {
+		server.Logger.Fatal(err)
+		return
 	}
 	handleRequest(server, &Dependencies{
-		db: db,
+		db:     db,
+		secret: secret,
 	})
 	server.Logger.Fatal(server.Start(fmt.Sprintf(":%s", getPort())))
-}
-
-type ServerError struct {
-	Message string `json:"message"`
-}
-
-type ServerErrorResponseBody struct {
-	Error *ServerError `json:"error"`
 }
 
 func handleRequest(e *echo.Echo, dependencies *Dependencies) {
@@ -49,19 +53,21 @@ func handleRequest(e *echo.Echo, dependencies *Dependencies) {
 
 		user, err := persistent.NewUser(provisionalUser)
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, &ServerErrorResponseBody{
-				Error: &ServerError{Message: "failed to add user."},
-			})
+			return c.JSON(http.StatusInternalServerError, common.NewServerError("failed to add user."))
 		}
 
 		if dependencies.DB().Create(user).Error != nil {
-			return c.JSON(http.StatusInternalServerError, &ServerErrorResponseBody{
-				Error: &ServerError{Message: "failed to add user."},
-			})
+			return c.JSON(http.StatusInternalServerError, common.NewServerError("failed to add user."))
 		}
 
 		return c.JSON(http.StatusCreated, &struct{}{})
 	})
+
+	jwtMiddleware := middleware.JWT(dependencies.Secret())
+
+	login := e.Group("/login")
+	login.Use(jwtMiddleware)
+	login.POST("", app.Login(dependencies))
 }
 
 func getPort() string {
@@ -70,6 +76,14 @@ func getPort() string {
 	}
 
 	return "80"
+}
+
+func getSecret() (string, error) {
+	if secret := os.Getenv("SECRET_KEY"); secret != "" {
+		return secret, nil
+	} else {
+		return "", errors.New("secret key not found")
+	}
 }
 
 func setUpDB() (db *gorm.DB, err error) {
@@ -90,9 +104,19 @@ func setUpDB() (db *gorm.DB, err error) {
 }
 
 type Dependencies struct {
-	db *gorm.DB
+	db     *gorm.DB
+	secret string
 }
 
 func (d *Dependencies) DB() *gorm.DB {
 	return d.db
+}
+
+func (d *Dependencies) Secret() string {
+	return d.secret
+}
+
+func (d *Dependencies) Now() *time.Time {
+	now := time.Now()
+	return &now
 }
