@@ -1,17 +1,14 @@
 package app
 
 import (
+	"github.com/koizr/go-todo-sample/auth/domain"
+	"github.com/koizr/go-todo-sample/auth/usecase"
 	"github.com/koizr/go-todo-sample/common"
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 	"net/http"
 	"time"
 )
-
-type LoginForm struct {
-	LoginID  string `json:"loginId"`
-	Password string `json:"password"`
-}
 
 type dependencies interface {
 	DB() *gorm.DB
@@ -25,24 +22,39 @@ type loginResponse struct {
 
 func Login(dependencies dependencies) func(c echo.Context) error {
 	return func(c echo.Context) error {
-		form := &LoginForm{}
+		form := &usecase.LoginForm{}
 		if err := c.Bind(form); err != nil {
 			return c.JSON(http.StatusBadRequest, &struct{}{})
 		}
 
-		users := NewUsers(dependencies.DB())
-		user, err := users.Find(form.LoginID, form.Password)
+		token, err := usecase.Login(
+			&loginDependencies{
+				dep: dependencies,
+			},
+			form,
+		)
 		if err != nil {
-			return c.JSON(http.StatusNotFound, common.NewServerError("user not found"))
-		}
-
-		token, err := GenerateToken(dependencies.Secret(), user, dependencies.Now())
-		if err != nil {
-			return c.JSON(http.StatusInternalServerError, common.NewServerError("failed to generate token"))
+			return c.JSON(http.StatusNotFound, common.NewServerError(err.Error()))
 		}
 
 		return c.JSON(http.StatusOK, &loginResponse{
 			Token: token,
 		})
 	}
+}
+
+type loginDependencies struct {
+	dep dependencies
+}
+
+func (ld *loginDependencies) Secret() string {
+	return ld.dep.Secret()
+}
+
+func (ld *loginDependencies) Now() *time.Time {
+	return ld.dep.Now()
+}
+
+func (ld *loginDependencies) Users() domain.Users {
+	return NewUsers(ld.dep.DB())
 }

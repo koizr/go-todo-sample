@@ -1,4 +1,4 @@
-package app
+package jwt
 
 import (
 	"github.com/koizr/go-todo-sample/auth/domain"
