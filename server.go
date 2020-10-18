@@ -62,12 +62,9 @@ func handleRequest(e *echo.Echo, dependencies *Dependencies) {
 
 		return c.JSON(http.StatusCreated, &struct{}{})
 	})
+	e.POST("/login", app.Login(dependencies))
 
-	jwtMiddleware := middleware.JWT(dependencies.Secret())
-
-	login := e.Group("/login")
-	login.Use(jwtMiddleware)
-	login.POST("", app.Login(dependencies))
+	_ = middleware.JWT(dependencies.Secret())
 }
 
 func getPort() string {
