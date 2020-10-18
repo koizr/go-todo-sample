@@ -10,7 +10,7 @@ type users struct {
 	db *gorm.DB
 }
 
-func NewUsers(db *gorm.DB) *users {
+func NewUsers(db *gorm.DB) domain.Users {
 	return &users{
 		db: db,
 	}
