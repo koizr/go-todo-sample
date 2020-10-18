@@ -1,9 +1,9 @@
 package app
 
 import (
-	"errors"
 	"github.com/koizr/go-todo-sample/auth/domain"
 	"github.com/koizr/go-todo-sample/infra/persistent"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -19,15 +19,11 @@ func NewUsers(db *gorm.DB) domain.Users {
 
 func (u *users) Find(loginID string, password string) (*domain.User, error) {
 	user := &persistent.User{}
-	hashedPassword, err := persistent.HashPassword(password)
-	if err != nil {
-		return nil, err
+	if u.db.First(user, persistent.User{LoginID: loginID}).Error != nil {
+		return nil, &domain.UserNotFoundError{}
 	}
-	if u.db.First(user, persistent.User{
-		LoginID:  loginID,
-		Password: hashedPassword,
-	}).Error != nil {
-		return nil, errors.New("user not found")
+	if bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)) != nil {
+		return nil, &domain.UserNotFoundError{}
 	}
 
 	return &domain.User{
