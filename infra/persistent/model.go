@@ -19,13 +19,21 @@ type ProvisionalUser struct {
 	Name     string `json:"name"`
 }
 
+func HashPassword(rawPassword string) (string, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(rawPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+	return string(hash), nil
+}
+
 func NewUser(user *ProvisionalUser) (*User, error) {
 	id, err := uuid.NewRandom()
 	if err != nil {
 		return nil, err
 	}
 
-	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	password, err := HashPassword(user.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -33,7 +41,7 @@ func NewUser(user *ProvisionalUser) (*User, error) {
 	return &User{
 		ID:       id.String(),
 		LoginID:  user.LoginID,
-		Password: string(hash),
+		Password: password,
 		Name:     user.Name,
 	}, nil
 }
