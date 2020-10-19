@@ -7,7 +7,6 @@ import (
 	"github.com/koizr/go-todo-sample/common"
 	"github.com/koizr/go-todo-sample/infra/persistent"
 	"github.com/labstack/echo/v4/middleware"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"net/http"
 	"os"
@@ -84,20 +83,14 @@ func getSecret() (string, error) {
 }
 
 func setUpDB() (db *gorm.DB, err error) {
-	db, err = gorm.Open(sqlite.Open("local.db"), &gorm.Config{})
-	if err != nil {
-		return
-	}
-
-	// migration
-	if err = db.AutoMigrate(&persistent.User{}); err != nil {
-		return
-	}
-	if err = db.AutoMigrate(&persistent.Task{}); err != nil {
-		return
-	}
-
-	return
+	return persistent.SetUpDB(&persistent.Config{
+		Host:     os.Getenv("DB_HOST"),
+		Port:     os.Getenv("DB_PORT"),
+		User:     os.Getenv("DB_USER"),
+		Password: os.Getenv("DB_PASSWORD"),
+		DBName:   os.Getenv("DB_NAME"),
+		TimeZone: os.Getenv("DB_TIMEZONE"),
+	})
 }
 
 type Dependencies struct {
