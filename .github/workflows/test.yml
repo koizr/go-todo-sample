@@ -1,0 +1,37 @@
+name: Test
+
+on: [ push, pull_request ]
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '^1.15.3'
+
+      - name: Go version
+        run: go version
+
+      # https://github.com/actions/cache/blob/master/examples.md#go---modules
+      - name: Cache
+        uses: actions/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Get dependencies
+        run: go get -v
+
+      - name: Build
+        run: go build -o go-todo .
+
+      - name: Run unit test
+        run: go test -v ./...
