@@ -18,4 +18,6 @@ RUN addgroup go \
   && adduser -D -G go go \
   && chown -R go:go /app/go-todo
 
+EXPOSE 8080
+
 CMD ["./go-todo"]
