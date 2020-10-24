@@ -71,7 +71,7 @@ func getPort() string {
 		return port
 	}
 
-	return "80"
+	return "8080"
 }
 
 func getSecret() (string, error) {
