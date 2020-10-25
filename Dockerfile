@@ -12,12 +12,8 @@ FROM alpine
 
 WORKDIR /app
 
-COPY --from=build /go/src/go-todo .
+RUN touch .env
 
-RUN addgroup go \
-  && adduser -D -G go go \
-  && chown -R go:go /app/go-todo
+COPY --from=build /go/src/go-todo /app/go-todo
 
-EXPOSE 8080
-
-CMD ["./go-todo"]
+CMD ["/app/go-todo"]

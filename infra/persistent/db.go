@@ -17,7 +17,7 @@ type Config struct {
 
 func SetUpDB(config *Config) (*gorm.DB, error) {
 	dsn := fmt.Sprintf(
-		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable TimeZone=%s",
+		"host=%s port=%s user=%s password=%s dbname=%s TimeZone=%s",
 		config.Host,
 		config.Port,
 		config.User,

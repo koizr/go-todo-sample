@@ -6,7 +6,7 @@ services:
       target: build
     container_name: go-todo
     ports:
-      - 8088:8088
+      - 8088:8080
     volumes:
       - ./:/go/src/
     command: go run ./server.go
@@ -15,7 +15,7 @@ services:
 
   postgresql:
     image: postgres:latest
-    container_name: postgresql
+    container_name: go-todo-db
     ports:
       - 5432:5432
     volumes:
