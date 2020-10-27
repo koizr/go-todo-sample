@@ -4,7 +4,7 @@ build:
 
 .PHONY: dev
 dev:
-	@go run ./server.go
+	@docker-compose up -d && air
 
 .PHONY: test
 test:

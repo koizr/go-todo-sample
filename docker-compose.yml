@@ -1,18 +1,5 @@
 version: "3.8"
 services:
-  web:
-    build:
-      context: .
-      target: build
-    container_name: go-todo
-    ports:
-      - 8088:8080
-    volumes:
-      - ./:/go/src/
-    command: go run ./server.go
-    depends_on:
-      - postgresql
-
   postgresql:
     image: postgres:latest
     container_name: go-todo-db
