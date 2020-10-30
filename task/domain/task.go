@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -69,4 +70,12 @@ type Tasks interface {
 	Remove(task *Task) error
 	FindAll(user *User) ([]*Task, error)
 	FindById(id *TaskID, user *User) (*Task, error)
+}
+
+type TaskNotFoundError struct {
+	ID *TaskID
+}
+
+func (t *TaskNotFoundError) Error() string {
+	return fmt.Sprintf("task is not found. ID: %s", *t.ID)
 }
