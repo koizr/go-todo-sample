@@ -38,9 +38,12 @@ func (t *Tasks) FindAll(user *domain.User) ([]*domain.Task, error) {
 	return tasks, nil
 }
 
-func (t *Tasks) FindById(id *domain.TaskID) (*domain.Task, error) {
+func (t *Tasks) FindById(id domain.TaskID, user *domain.User) (*domain.Task, error) {
 	task := &persistent.Task{}
-	if err := t.db.First(task, id).Error; err != nil {
+	tx := t.db.
+		Where(&persistent.Task{ID: id, UserID: user.ID}).
+		First(task)
+	if tx.Error != nil {
 		return nil, &domain.TaskNotFoundError{
 			ID: id,
 		}

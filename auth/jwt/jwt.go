@@ -13,16 +13,18 @@ const (
 	issuedAt = "iat"
 )
 
+type Token = jwt.Token
+
 func GenerateToken(secret string, user *domain.User, now *time.Time) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		subject:  user.ID,
 		issuedAt: now.Unix(),
-		expire:   now.Add(time.Minute * 5).Unix(),
+		expire:   now.Add(time.Minute * 10).Unix(), // TODO: 期限の扱いを変更する。環境変数から取るか、適当にもう少し伸ばすか
 	})
 	return token.SignedString([]byte(secret))
 }
 
-func ParseToken(token *jwt.Token, now *time.Time) (string, error) {
+func ParseToken(token *Token, now *time.Time) (domain.UserID, error) {
 	claims := token.Claims.(jwt.MapClaims)
 
 	// 期限切れならエラー
@@ -35,7 +37,7 @@ func ParseToken(token *jwt.Token, now *time.Time) (string, error) {
 	}
 
 	// ユーザーID を取れなかったらエラー
-	userID, ok := claims[subject].(string)
+	userID, ok := claims[subject].(domain.UserID)
 	if !ok {
 		return "", errors.New("UserID does not exist in claims")
 	}

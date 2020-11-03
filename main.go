@@ -3,9 +3,10 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/koizr/go-todo-sample/auth/app"
+	auth "github.com/koizr/go-todo-sample/auth/app"
 	"github.com/koizr/go-todo-sample/common"
 	"github.com/koizr/go-todo-sample/infra/persistent"
+	task "github.com/koizr/go-todo-sample/task/app"
 	"github.com/labstack/echo/v4/middleware"
 	"gorm.io/gorm"
 	"net/http"
@@ -61,9 +62,13 @@ func handleRequest(e *echo.Echo, dependencies *Dependencies) {
 
 		return c.JSON(http.StatusCreated, &struct{}{})
 	})
-	e.POST("/login", app.Login(dependencies))
+	e.POST("/login", auth.Login(dependencies))
 
-	_ = middleware.JWT(dependencies.Secret())
+	jwtMiddleware := middleware.JWT([]byte(dependencies.Secret()))
+
+	taskGroup := e.Group("/task")
+	taskGroup.Use(jwtMiddleware)
+	taskGroup.POST("/tasks", task.AddTask(dependencies))
 }
 
 func getPort() string {

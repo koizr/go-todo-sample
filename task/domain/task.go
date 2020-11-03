@@ -22,9 +22,9 @@ type Task struct {
 	DueDate     *time.Time
 }
 
-func NewTask(idGenerator func() string, user *User, subject string, description string, dueDate *time.Time) *Task {
+func NewTask(id TaskID, user *User, subject string, description string, dueDate *time.Time) *Task {
 	return &Task{
-		ID:          idGenerator(),
+		ID:          id,
 		User:        user,
 		Subject:     subject,
 		Description: description,
@@ -69,13 +69,13 @@ type Tasks interface {
 	UpdateSubject(task *Task) error
 	Remove(task *Task) error
 	FindAll(user *User) ([]*Task, error)
-	FindById(id *TaskID, user *User) (*Task, error)
+	FindById(id TaskID, user *User) (*Task, error)
 }
 
 type TaskNotFoundError struct {
-	ID *TaskID
+	ID TaskID
 }
 
 func (t *TaskNotFoundError) Error() string {
-	return fmt.Sprintf("task is not found. ID: %s", *t.ID)
+	return fmt.Sprintf("task is not found. ID: %s", t.ID)
 }
