@@ -15,11 +15,11 @@ const (
 
 type Token = jwt.Token
 
-func GenerateToken(secret string, user *domain.User, now *time.Time) (string, error) {
+func GenerateToken(secret string, user *domain.User, now *time.Time, expireSeconds time.Duration) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		subject:  user.ID,
 		issuedAt: now.Unix(),
-		expire:   now.Add(time.Minute * 10).Unix(), // TODO: 期限の扱いを変更する。環境変数から取るか、適当にもう少し伸ばすか
+		expire:   now.Add(expireSeconds).Unix(),
 	})
 	return token.SignedString([]byte(secret))
 }

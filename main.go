@@ -115,3 +115,7 @@ func (d *Dependencies) Now() *time.Time {
 	now := time.Now()
 	return &now
 }
+
+func (d *Dependencies) AuthenticationExpire() time.Duration {
+	return time.Minute * 10
+}

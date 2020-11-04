@@ -11,6 +11,7 @@ type LoginDependencies interface {
 	Users() domain.Users
 	Secret() string
 	Now() *time.Time
+	AuthenticationExpire() time.Duration
 }
 
 type LoginForm struct {
@@ -24,5 +25,5 @@ func Login(dep LoginDependencies, form *LoginForm) (string, error) {
 		return "", errors.New("user not found")
 	}
 
-	return jwt.GenerateToken(dep.Secret(), user, dep.Now())
+	return jwt.GenerateToken(dep.Secret(), user, dep.Now(), dep.AuthenticationExpire())
 }

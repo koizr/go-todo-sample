@@ -14,6 +14,7 @@ type dependencies interface {
 	DB() *gorm.DB
 	Secret() string
 	Now() *time.Time
+	AuthenticationExpire() time.Duration
 }
 
 type loginResponse struct {
@@ -57,4 +58,8 @@ func (ld *loginDependencies) Now() *time.Time {
 
 func (ld *loginDependencies) Users() domain.Users {
 	return NewUsers(ld.dep.DB())
+}
+
+func (ld *loginDependencies) AuthenticationExpire() time.Duration {
+	return ld.dep.AuthenticationExpire()
 }
