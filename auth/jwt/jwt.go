@@ -24,17 +24,8 @@ func GenerateToken(secret string, user *domain.User, now *time.Time) (string, er
 	return token.SignedString([]byte(secret))
 }
 
-func ParseToken(token *Token, now *time.Time) (domain.UserID, error) {
+func ParseToken(token *Token) (domain.UserID, error) {
 	claims := token.Claims.(jwt.MapClaims)
-
-	// 期限切れならエラー
-	exp, ok := claims[expire].(int64)
-	if !ok {
-		return "", errors.New("expire does not exist in claims")
-	}
-	if exp < now.Unix() {
-		return "", errors.New("token is expired")
-	}
 
 	// ユーザーID を取れなかったらエラー
 	userID, ok := claims[subject].(domain.UserID)

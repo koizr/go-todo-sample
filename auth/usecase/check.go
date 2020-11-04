@@ -3,13 +3,12 @@ package usecase
 import (
 	"github.com/koizr/go-todo-sample/auth/domain"
 	"github.com/koizr/go-todo-sample/auth/jwt"
-	"time"
 )
 
 type Token = jwt.Token
 
-func Authenticate(token *Token, now *time.Time) (*domain.User, error) {
-	userID, err := jwt.ParseToken(token, now)
+func Authenticate(token *Token) (*domain.User, error) {
+	userID, err := jwt.ParseToken(token)
 	if err != nil {
 		return nil, err
 	}

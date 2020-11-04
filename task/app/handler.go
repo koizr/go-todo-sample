@@ -14,7 +14,6 @@ import (
 
 type dependencies interface {
 	DB() *gorm.DB
-	Now() *time.Time
 }
 
 type addTaskResponse struct {
@@ -42,7 +41,7 @@ func AddTask(dependencies dependencies) func(c echo.Context) error {
 			return c.JSON(http.StatusBadRequest, &struct{}{}) // TODO: return message
 		}
 
-		user, err := auth.Authenticate(c.Get("user").(*auth.Token), dependencies.Now())
+		user, err := auth.Authenticate(c.Get("user").(*auth.Token))
 		if err != nil {
 			// TODO: JWT の認証失敗時のレスポンスの形式を調べて再実装。しかし JWT を使っているという情報がここに漏れ出すのは良くない感じがする
 			return c.JSON(http.StatusUnauthorized, nil)
