@@ -15,3 +15,7 @@ func NewServerError(message string) *ServerErrorResponseBody {
 type ServerErrorResponseBody struct {
 	Error *ServerError `json:"error"`
 }
+
+type Error struct {
+	Message string `json:"message"`
+}

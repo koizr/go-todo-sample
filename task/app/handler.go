@@ -20,14 +20,6 @@ type addTaskResponse struct {
 	task *domain.Task
 }
 
-type addTaskClientErrorResponse struct {
-	Error addTaskClientError `json:"error"`
-}
-
-type addTaskClientError struct {
-	Message string `json:"message"`
-}
-
 type addTaskForm struct {
 	Subject     string `json:"subject"`
 	Description string `json:"description"`
@@ -38,21 +30,18 @@ func AddTask(dependencies dependencies) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		form := &addTaskForm{}
 		if err := c.Bind(form); err != nil {
-			return c.JSON(http.StatusBadRequest, &struct{}{}) // TODO: return message
+			return c.JSON(http.StatusBadRequest, common.Error{Message: err.Error()})
 		}
 
 		user, err := auth.Authenticate(c.Get("user").(*auth.Token))
 		if err != nil {
-			// TODO: JWT の認証失敗時のレスポンスの形式を調べて再実装。しかし JWT を使っているという情報がここに漏れ出すのは良くない感じがする
-			return c.JSON(http.StatusUnauthorized, nil)
+			return c.JSON(http.StatusUnauthorized, common.Error{Message: "invalid or expired jwt"})
 		}
 
 		dueDate, err := time.Parse(time.RFC3339, form.DueDate)
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, &addTaskClientErrorResponse{
-				Error: addTaskClientError{
-					Message: "dueDate parse error. expected dueDate format is RFC3339",
-				},
+			return c.JSON(http.StatusBadRequest, common.Error{
+				Message: "dueDate parse error. expected dueDate format is RFC3339",
 			})
 		}
 
@@ -69,7 +58,7 @@ func AddTask(dependencies dependencies) func(c echo.Context) error {
 			},
 		)
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, common.NewServerError("failed to add task"))
+			return c.JSON(http.StatusInternalServerError, common.Error{Message: "failed to add task"})
 		}
 
 		return c.JSON(http.StatusOK, &addTaskResponse{
