@@ -12,7 +12,7 @@ func TestGenerateToken(t *testing.T) {
 	user := domain.User{ID: "55f3bb74-57ca-40ed-b566-5a98e2efb0eb"}
 	now := time.Date(2020, 10, 1, 12, 40, 30, 50, time.UTC)
 
-	signedString, err := GenerateToken(secret, &user, &now)
+	signedString, err := GenerateToken(secret, &user, &now, time.Minute*5)
 	if err != nil {
 		t.Fatalf("failed to generate token")
 	}

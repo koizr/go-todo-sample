@@ -55,3 +55,11 @@ type Task struct {
 	Status      uint      `gorm:"not null"`
 	DueDate     time.Time `gorm:"not null"`
 }
+
+func GenerateTaskID() (string, error) {
+	id, err := uuid.NewRandom()
+	if err != nil {
+		return "", err
+	}
+	return id.String(), err
+}

@@ -32,8 +32,9 @@ func TestLogin(t *testing.T) {
 				},
 			},
 		},
-		secret: "test",
-		now:    time.Date(2020, 10, 1, 12, 20, 30, 5, time.UTC),
+		secret:  "test",
+		now:     time.Date(2020, 10, 1, 12, 20, 30, 5, time.UTC),
+		authExp: time.Minute * 5,
 	}
 
 	token, err := Login(dep, form)
@@ -67,8 +68,9 @@ func TestLoginUserNotFound(t *testing.T) {
 				},
 			},
 		},
-		secret: "test",
-		now:    time.Date(2020, 10, 1, 12, 20, 30, 5, time.UTC),
+		secret:  "test",
+		now:     time.Date(2020, 10, 1, 12, 20, 30, 5, time.UTC),
+		authExp: time.Minute * 5,
 	}
 
 	_, err := Login(dep, &LoginForm{
@@ -97,9 +99,10 @@ func TestLoginUserNotFound(t *testing.T) {
 }
 
 type depMock struct {
-	users  domain.Users
-	secret string
-	now    time.Time
+	users   domain.Users
+	secret  string
+	now     time.Time
+	authExp time.Duration
 }
 
 func (d *depMock) Users() domain.Users {
@@ -112,6 +115,10 @@ func (d depMock) Secret() string {
 
 func (d depMock) Now() *time.Time {
 	return &d.now
+}
+
+func (d depMock) AuthenticationExpire() time.Duration {
+	return d.authExp
 }
 
 type user struct {
