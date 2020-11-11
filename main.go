@@ -69,6 +69,7 @@ func handleRequest(e *echo.Echo, dependencies *Dependencies) {
 	taskGroup := e.Group("/task")
 	taskGroup.Use(jwtMiddleware)
 	taskGroup.POST("", task.AddTask(dependencies))
+	taskGroup.POST("/:id/complete", task.CompleteTask(dependencies))
 }
 
 func getPort() string {

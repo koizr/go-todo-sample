@@ -66,7 +66,7 @@ const (
 
 type Tasks interface {
 	Add(task *Task) error
-	UpdateSubject(task *Task) error
+	Update(task *Task) error
 	Remove(task *Task) error
 	FindAll(user *User) ([]*Task, error)
 	FindById(id TaskID, user *User) (*Task, error)

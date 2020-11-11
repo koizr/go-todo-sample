@@ -14,10 +14,16 @@ func (t *Tasks) Add(task *domain.Task) error {
 	return t.db.Create(taskToDataModel(task)).Error
 }
 
-func (t *Tasks) UpdateSubject(task *domain.Task) error {
+func (t *Tasks) Update(task *domain.Task) error {
 	return t.db.Model(task).Updates(&persistent.Task{
-		Subject: task.Subject,
-	}).Error
+		ID:          task.ID,
+		UserID:      task.User.ID,
+		Subject:     task.Subject,
+		Description: task.Description,
+		Status:      task.Status,
+		DueDate:     *task.DueDate,
+	},
+	).Error
 }
 
 func (t *Tasks) Remove(task *domain.Task) error {
