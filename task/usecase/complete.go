@@ -2,12 +2,10 @@ package usecase
 
 import (
 	"github.com/koizr/go-todo-sample/task/domain"
-	"time"
 )
 
 type CompleteDependencies struct {
 	Tasks domain.Tasks
-	Now   *time.Time
 	User  *domain.User
 }
 

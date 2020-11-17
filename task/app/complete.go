@@ -8,12 +8,10 @@ import (
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 	"net/http"
-	"time"
 )
 
 type completeTaskDep interface {
 	DB() *gorm.DB
-	Now() *time.Time
 }
 
 type completeTaskResponse struct {
@@ -32,7 +30,6 @@ func CompleteTask(dependencies completeTaskDep) func(c echo.Context) error {
 		if usecase.Complete(
 			&usecase.CompleteDependencies{
 				Tasks: &Tasks{db: dependencies.DB()},
-				Now:   dependencies.Now(),
 				User: &domain.User{
 					ID: user.ID,
 				},
