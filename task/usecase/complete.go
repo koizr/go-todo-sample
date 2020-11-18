@@ -19,7 +19,7 @@ func Complete(dependencies *CompleteDependencies, input *CompleteInput) error {
 		return err
 	}
 
-	if err := dependencies.Tasks.Update(task); err != nil {
+	if err := dependencies.Tasks.Update(task.Complete()); err != nil {
 		return err
 	}
 

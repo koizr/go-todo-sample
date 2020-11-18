@@ -36,7 +36,6 @@ func CompleteTask(dependencies completeTaskDep) func(c echo.Context) error {
 			},
 			&usecase.CompleteInput{TaskID: id},
 		) != nil {
-
 			return c.JSON(http.StatusInternalServerError, common.Error{Message: "failed to complete task"})
 		}
 

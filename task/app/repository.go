@@ -15,19 +15,16 @@ func (t *Tasks) Add(task *domain.Task) error {
 }
 
 func (t *Tasks) Update(task *domain.Task) error {
-	return t.db.Model(task).Updates(&persistent.Task{
-		ID:          task.ID,
-		UserID:      task.User.ID,
-		Subject:     task.Subject,
-		Description: task.Description,
-		Status:      task.Status,
-		DueDate:     *task.DueDate,
-	},
-	).Error
+	return t.db.Model(taskToDataModel(task)).Updates(map[string]interface{}{
+		"subject":     task.Subject,
+		"description": task.Description,
+		"status":      task.Status,
+		"due_date":    task.DueDate,
+	}).Error
 }
 
 func (t *Tasks) Remove(task *domain.Task) error {
-	return t.db.Delete(task).Error
+	return t.db.Delete(taskToDataModel(task)).Error
 }
 
 func (t *Tasks) FindAll(user *domain.User) ([]*domain.Task, error) {
