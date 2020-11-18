@@ -7,10 +7,10 @@ import (
 )
 
 type User struct {
-	ID       string `gorm:"primaryKey"`
-	LoginID  string `gorm:"unique;not null"`
-	Password string `gorm:"not null"`
-	Name     string `gorm:"not null"`
+	ID       string `gorm:"type:varchar(255);primaryKey"`
+	LoginID  string `gorm:"type:varchar(255);unique;not null"`
+	Password string `gorm:"type:varchar(255);not null"`
+	Name     string `gorm:"type:varchar(255);not null"`
 }
 
 type ProvisionalUser struct {
@@ -47,12 +47,12 @@ func NewUser(user *ProvisionalUser) (*User, error) {
 }
 
 type Task struct {
-	ID          string `gorm:"primaryKey"`
-	UserID      string `gorm:"not null"`
+	ID          string `gorm:"type:varchar(255);primaryKey"`
+	UserID      string `gorm:"type:varchar(255);not null"`
 	User        User
-	Subject     string    `gorm:"not null"`
-	Description string    `gorm:"not null"`
-	Status      uint      `gorm:"not null"`
+	Subject     string    `gorm:"type:varchar(255);not null"`
+	Description string    `gorm:"type:text;not null"`
+	Status      uint      `gorm:"type:smallint;not null"`
 	DueDate     time.Time `gorm:"not null"`
 }
 
