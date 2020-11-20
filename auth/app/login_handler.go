@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-type dependencies interface {
+type loginDep interface {
 	DB() *gorm.DB
 	Secret() string
 	Now() *time.Time
@@ -21,7 +21,7 @@ type loginResponse struct {
 	Token string `json:"token"`
 }
 
-func Login(dependencies dependencies) func(c echo.Context) error {
+func Login(dependencies loginDep) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		form := &usecase.LoginForm{}
 		if err := c.Bind(form); err != nil {
@@ -45,7 +45,7 @@ func Login(dependencies dependencies) func(c echo.Context) error {
 }
 
 type loginDependencies struct {
-	dep dependencies
+	dep loginDep
 }
 
 func (ld *loginDependencies) Secret() string {
