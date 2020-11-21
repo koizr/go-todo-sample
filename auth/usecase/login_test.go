@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"errors"
 	"github.com/koizr/go-todo-sample/auth/domain"
 	"testing"
 	"time"
@@ -119,25 +118,4 @@ func (d depMock) Now() *time.Time {
 
 func (d depMock) AuthenticationExpire() time.Duration {
 	return d.authExp
-}
-
-type user struct {
-	ID       string
-	LoginID  string
-	Password string
-}
-
-type usersMock struct {
-	users []user
-}
-
-func (u *usersMock) Find(loginID string, password string) (*domain.User, error) {
-	for _, user := range u.users {
-		if user.LoginID == loginID && user.Password == password {
-			return &domain.User{
-				ID: user.ID,
-			}, nil
-		}
-	}
-	return nil, errors.New("user not found")
 }

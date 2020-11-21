@@ -1,19 +1,20 @@
-package persistent
+package app
 
 import (
 	"github.com/google/uuid"
+	"github.com/koizr/go-todo-sample/auth/domain"
 	"golang.org/x/crypto/bcrypt"
 	"testing"
 )
 
 func TestNewUser(t *testing.T) {
-	provisionalUser := &ProvisionalUser{
+	provisionalUser := &domain.ProvisionalUser{
 		LoginID:  "test-login-id",
 		Password: "test_password",
 		Name:     "Taro",
 	}
 
-	user, err := NewUser(provisionalUser)
+	user, err := newUser(provisionalUser)
 	if err != nil {
 		t.Fatalf("failed to create User. %s", err.Error())
 	}
